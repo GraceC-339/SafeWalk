@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello_world():
-    return render_template("index.html", title="Hello")
+    return render_template("index.html", title="SafeWalk")
 
 # fetch data from csv file and return it as json
 @app.route('/data')
