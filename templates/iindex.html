@@ -1,0 +1,55 @@
+// using leaflet and leaflet.markercluster libraries
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Cluster Markers Example</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+	<style>
+		#map {
+			height: 600px;
+		}
+	</style>
+</head>
+<body>
+	<div id="map"></div>
+	<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+	<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+	<script>
+		// Initialize the map
+		var map = L.map('map').setView([51.524215, -0.039631], 13);
+
+		// Add a tile layer to the map
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		}).addTo(map);
+
+		// Fetch data from the server
+		fetch('/data')
+			.then(response => response.json())
+			.then(data => {
+
+				// Create a marker cluster group with custom options
+				var markers = L.markerClusterGroup({
+					iconCreateFunction: createCustomClusterIcon
+				});
+
+				// Loop through the data and create markers
+				data.data.forEach(item => {
+					var marker = L.marker([item.Latitude, item.Longitude]);
+
+					// Bind pop-up information to each marker
+					marker.bindPopup('<b>' + item.CrimeType + '</b><br>' + item.Description);
+
+					markers.addLayer(marker);
+				});
+
+				// Add the marker cluster group to the map
+				map.addLayer(markers);
+			})
+			.catch(error => console.error('Error fetching data:', error));
+	</script>
+</body>
+</html>

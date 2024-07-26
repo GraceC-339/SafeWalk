@@ -1,22 +1,61 @@
 <head>
-    <title>{{ title }}</title>
+    <title>{{ SafeWalk }}</title>
     <meta charset=”utf-8"> 
     <meta name=”viewport” content=”width=device-width, initial-scale=1">
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7jrMztTqS2ikd5ojGtcUFNoQC2VbSq9A"></script>
+    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
-    <script src="{{ url_for ('static', filename='main.js')}}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="{{ url_for ('static', filename='map.js')}}"></script>
+    <script src="{{ url_for ('static', filename='route.js')}}"></script>
+    
 </head>
 
 <body>
   
     <div id="wrapper">
-    <div class="App">
-        <header class="App-header">
-            <img src="{{ url_for('static', filename='Octocat.png') }}" class="App-logo" alt="logo" />
+    <div class="grid gap-3  row-gap-3 mx-5 App">
+    
+            <div  class="text-center mb-4" id = "App-logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" class="logo" alt="logo" />
             <h1>
-                Crime Map
+                SafeWalk
             </h1>
-        </header>
+            </div>
+
+            <!-- Add crimetype choice for users -->
+            <div class="mb-3">
+            <h2>Explore the Crime Map - Choose Crime Type:</h2>
+            <select class="form-select" id="CrimeType" name="CrimeType">
+                <option value="All">All</option>
+                <option value="Anti-social behaviour">Anti-social behaviour</option>
+                <option value="Possession of weapons">Possession of weapons</option>
+                <option value="Public order">Public order</option>
+                <option value="Robbery">Robbery</option>
+                <option value="Theft from the person">Theft</option>
+                <option value="Vehicle crime">Vehicle crime</option>
+                <option value="Violence and sexual offences">Violence and sexual offences</option>
+                <option value="Drugs">Drugs</option>
+            </select>
+            <button type="button" class="btn btn-light" onclick="initMap()">Update Map</button>
+            </div>
+
+            <!-- route recommendation -->
+            <h2>Get a Safe Route</h2>
+            <div class="mb-3">
+            <label for="start" class="form-label">Start:</label>
+            <input type="text" class="form-control" id="start" name="start" placeholder="Enter your start location">
+            </div>
+            
+            <div class="mb-3">
+            <label for="end" class="form-label">End:</label>
+            <input type="text" id="end" class="form-control" name="end" placeholder="Enter your end location">
+            </div>
+            <button type="button" class="btn btn-success" id="getRouteButton">Get Route</button>
+
+
+
     </div>
 
     <div id="map"></div>

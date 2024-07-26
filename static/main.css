@@ -14,36 +14,46 @@ code {
 
 #wrapper {
     display: flex;
-    border: 1px solid black;
+    border: 1px solid rgb(255, 255, 255);
+}
+
+#App-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 1vh;
+}
+
+.logo {
+    width: 5vw;
+    height: auto;
+    margin-right: 1vw;
+}
+
+h1 {
+    font-size: 4vw;
+    color: #26BD50;
+}
+
+h2 {
+    font-size: 2vw !important;
 }
 
 .App {
-    text-align: center;
-    width: 40%;
-}
-
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
-}
-
-.App-header {
-    background-color: #282c34;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+    color: #26BD50;
+    margin-top: 1vh;
+    width: 20vw
 }
 
-.App-link {
-    color: #61dafb;
+label, select, button {
+    font-size: 1.5vw; /* Font size relative to viewport width */
+    margin: 1vh 0; /* Margin relative to viewport height */
+    justify-content: center;
 }
 
-.heart {
-    color: #ff0000;
+button {
+    padding: 1vh 2vw; /* Padding relative to viewport dimensions */
 }
 
 .small {
@@ -53,6 +63,6 @@ code {
 /* Set the size of the div element that contains the map */
 #map {
     min-height: 100vh;
-    width: 60%; /* The width is the width of the web page */
+    width: 80vw; /* The width is the width of the web page */
 }
 
