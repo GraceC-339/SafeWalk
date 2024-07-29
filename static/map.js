@@ -9,12 +9,12 @@ async function initMap(){
   const specificCrimeType = document.getElementById('CrimeType').value;
 
   // Initialise the map
- map = new google.maps.Map(document.getElementById("map"), {
+  map = new google.maps.Map(document.getElementById("map"), {
     zoom: 16,
     center: { lat: 51.524215, lng: -0.039631 }, // Mile End Library
   });
   
-  //Fetch the JSON data
+  //Fetch the JSON crime data
   const response = await fetch('/data');
   const jsonData = await response.json();
 
@@ -73,5 +73,42 @@ async function initMap(){
         google.maps.event.trigger(marker, 'click');
       }
     });
+  
+    // Add event listener for the "Get Route" button
+  document.getElementById('getRouteButton').addEventListener('click', calculateSafeRoute);
+  console.log('Map initialised');
+}
+
+// Function to handle user input and generate the route
+async function calculateSafeRoute(){
+  // Get the user input from an input field or any other source
+  const start = document.getElementById('start').value;
+  const end = document.getElementById('end').value;
+  const crimeTypeToAvoid = document.getElementById('crimeToAvoid').value;
+
+  if (!start || !end) {
+    alert('Please enter a start and end location');
+    return;
+  }
+
+  // Fetch the safest route based on the user's input
+  const directionUrl = `/route?start=${start}&end=${end}&crimeTypeToAvoid=${crimeTypeToAvoid}`;
+  try {
+    const response = await fetch(directionUrl);
+    const data = await response.json();
+    const directions = data.directions;
+    const crimeSore = data.crime_score;
+
+    // Render the directions on the map
+    const directionsRenderer = new google.maps.DirectionsRenderer();
+    directionsRenderer.setMap(map);
+    directionsRenderer.setDirections({routes: [directions]});
+
+    // Alert the user with the crime score of the safest route
+    alert(`The crime score of the safest route is ${crimeSore}`);
+  } catch (error) {
+    console.error('Error fetching data', error);
+  }
+
 
 }
