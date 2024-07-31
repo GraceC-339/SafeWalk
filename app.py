@@ -33,7 +33,10 @@ def data():
 def route():
     start = request.args.get('start')
     end = request.args.get('end')
-    crime_to_avoid = request.args.get('crime_to_avoid')
+    crime_to_avoid = request.args.get('crimeToAvoid')
+
+    #Debugging: Print input parameters
+    print(f"start:{start}, End: {end}, Crime to avoid: {crime_to_avoid}")
 
     # fetch routes from Google Maps Directions API
     directions_url = f'https://maps.googleapis.com/maps/api/directions/json?destination={end}&origin={start}&mode=walking&key={GOOGLE_MAPS_API_KEY}'
@@ -52,6 +55,7 @@ def route():
         'Robbery': 4
     }
     crime_scores_to_avoid = crime_scores.get(crime_to_avoid, 0)
+
 
     for route in routes:
         crime_count = 0
@@ -72,8 +76,11 @@ def route():
         if crime_count < lowest_crime_score:
             lowest_crime_score = crime_count
             safest_route = route
-    return jsonify({'directions': safest_route, 'crime_score': lowest_crime_score})
+    
+    if safest_route is None:
+        return jsonify({'error': 'No routes found'}),404
 
+    return jsonify({'directions': safest_route, 'crime_score': lowest_crime_score})
 
 
 if __name__ == "__main__":

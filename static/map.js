@@ -74,17 +74,15 @@ async function initMap(){
       }
     });
   
-    // Add event listener for the "Get Route" button
-  document.getElementById('getRouteButton').addEventListener('click', calculateSafeRoute);
-  console.log('Map initialised');
 }
 
 // Function to handle user input and generate the route
 async function calculateSafeRoute(){
+  console.log('Calculating safe route');
   // Get the user input from an input field or any other source
   const start = document.getElementById('start').value;
   const end = document.getElementById('end').value;
-  const crimeTypeToAvoid = document.getElementById('crimeToAvoid').value;
+  const crimeToAvoid = document.getElementById('crimeToAvoid').value;
 
   if (!start || !end) {
     alert('Please enter a start and end location');
@@ -92,7 +90,7 @@ async function calculateSafeRoute(){
   }
 
   // Fetch the safest route based on the user's input
-  const directionUrl = `/route?start=${start}&end=${end}&crimeTypeToAvoid=${crimeTypeToAvoid}`;
+  const directionUrl = `/route?start=${start}&end=${end}&crimeTypeToAvoid=${crimeToAvoid}`;
   try {
     const response = await fetch(directionUrl);
     const data = await response.json();
@@ -109,6 +107,4 @@ async function calculateSafeRoute(){
   } catch (error) {
     console.error('Error fetching data', error);
   }
-
-
 }
