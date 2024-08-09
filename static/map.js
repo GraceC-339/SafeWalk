@@ -61,46 +61,41 @@ async function initMap() {
 async function calculateSafeRoute() {
   console.log("Calculating safe route");
 
-  // // Load the libraries
-  // const { Autocomplete } = await google.maps.importLibrary("places");
+  // Load the places libraries for autocomplete
+  const { Autocomplete } = await google.maps.importLibrary("places");
+
+  // Initialise the autocomplete
+  const autocompleteStart = new google.maps.places.Autocomplete(
+    document.getElementById("start")
+  );
+  const autocompleteEnd = new google.maps.places.Autocomplete(
+    document.getElementById("end")
+  );
 
   // Get the user input from an input field or any other source
-  const start = document.getElementById("start");
-  const end = document.getElementById("end");
+  const start = document.getElementById("start").value;
+  const end = document.getElementById("end").value;
   const crimeToAvoid = document.getElementById("crimeToAvoid").value;
-
-  // // Initialise the autocomplete
-  // const autocompleteStart = new google.maps.places.Autocomplete(start);
-  // const autocompleteEnd = new google.maps.places.Autocomplete(end);
 
   if (!start || !end) {
     alert("Please enter a start and end location");
     return;
   }
 
-  // Initialise the map
-  map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 16,
-    center: start,
-    mapId: "442e4dadd8edd99",
-  });
-
   // Fetch the safest route based on the user's input
-  const directionUrl = `/route?start=${start}&end=${end}&crimeTypeToAvoid=${crimeToAvoid}`;
-  try {
-    const response = await fetch(directionUrl);
-    const data = await response.json();
-    const directions = data.directions;
-    const crimeSore = data.crime_score;
+  const routeResponse = await fetch("/calculate-route", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ start, end, crimeToAvoid }),
+  });
+  console.log("Calculating safe route, fetch the route");
 
-    // Render the directions on the map
-    const directionsRenderer = new google.maps.DirectionsRenderer();
-    directionsRenderer.setMap(map);
-    directionsRenderer.setDirections({ routes: [directions] });
+  const routeData = await routeResponse.json();
 
-    // Alert the user with the crime score of the safest route
-    alert(`The crime score of the safest route is ${crimeSore}`);
-  } catch (error) {
-    console.error("Error fetching data", error);
-  }
+  // Render the directions on the map
+  const directionsRenderer = new google.maps.DirectionsRenderer();
+  directionsRenderer.setMap(map);
+  directionsRenderer.setDirections(routeData.route);
 }

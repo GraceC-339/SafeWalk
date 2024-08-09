@@ -8,6 +8,8 @@ app = Flask(__name__)
 
 GOOGLE_MAPS_API_KEY = 'AIzaSyD7jrMztTqS2ikd5ojGtcUFNoQC2VbSq9A'
 
+gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
+
 #read the crime data
 # Load crime data from CSV
 def load_crime_data(csv_file):
@@ -30,7 +32,7 @@ def data():
 
 # Safe route recommendation
 
-@app.route('/calculate_route', methods=['POST'])
+@app.route('/calculate-route', methods=['POST'])
 def calculate_route():
     data = request.json
     start = data['start']
@@ -42,6 +44,9 @@ def calculate_route():
 
     directions= gmaps.directions(start, end, mode='walking', alternatives=True)
 
+    #Debugging: Print the directions
+    # print(directions) - it's working
+
     safest_route = None
     lowest_risk = float('inf')
 
@@ -52,6 +57,7 @@ def calculate_route():
             safest_route = route
     return jsonify({'route': safest_route})
 
+
 def calculate_risk_score(route, crime_to_avoid, CRIMES):
     risk_score = 0
     for leg in route['legs']:
@@ -59,14 +65,14 @@ def calculate_risk_score(route, crime_to_avoid, CRIMES):
             lat = step['start_location']['lat']
             lng = step['start_location']['lng']
             for crime in CRIMES:
-                if crime_to_avoid == 'All' or crime['CrimeType'] == crime_to_avoid:
+                if crime['CrimeType'] == crime_to_avoid:
                     crime_lat = crime['latitude']
                     crime_lng = crime['longitude']
                     distance = gmaps.distance_matrix((lat, lng), (crime_lat, crime_lng))['rows'][0]['elements'][0]['distance']['value']
                     if distance < 50:  # 500 meters radius
                         risk_score += 1
     return risk_score
-    
+
 
 if __name__ == "__main__":
     app.run(debug=True) 

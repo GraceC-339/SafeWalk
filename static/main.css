@@ -53,6 +53,7 @@ label, select, button {
 }
 
 button {
+    margin-top: 10px;
     padding: 1vh 2vw; /* Padding relative to viewport dimensions */
 }
 
