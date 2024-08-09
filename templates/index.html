@@ -2,10 +2,6 @@
     <title>{{ SafeWalk }}</title>
     <meta charset=”utf-8"> 
     <meta name=”viewport” content=”width=device-width, initial-scale=1">
-
-    <!-- Google Maps Javascript API and MarkerClusterer library -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7jrMztTqS2ikd5ojGtcUFNoQC2VbSq9A"></script>
-    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
     
     <!-- Link to css file and bootstrap library -->
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
@@ -60,16 +56,18 @@
             <!-- Dropdown to select which crime to avoid-->
             <label for="crimeToAvoid">Choose Crime Type to Avoid:</label>
             <select id="crimeToAvoid" >
-                <option value="">All Crimes</option>
-                <option value="Theft from the person">Theft</option>
-                <option value="Violence and sexual offences">Violence and sexual offences</option>
+                <option value="Anti-social behaviour">Anti-social behaviour</option>
+                <option value="Possession of weapons">Possession of weapons</option>
+                <option value="Public order">Public order</option>
                 <option value="Robbery">Robbery</option>
+                <option value="Theft from the person">Theft</option>
+                <option value="Vehicle crime">Vehicle crime</option>
+                <option value="Violence and sexual offences">Violence and sexual offences</option>
+                <option value="Drugs">Drugs</option>
             </select>
 
             <!-- Button to calculate the safest route-->
             <button onclick="calculateSafeRoute()" type="button" class="btn btn-success" id="getRouteButton">Get Route</button>
-
-
 
     </div>
 
@@ -78,7 +76,11 @@
     </div>
   
     
-  
+
+ <!-- Google Maps Javascript API and MarkerClusterer library -->
+ <script>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
+        ({key: "AIzaSyD7jrMztTqS2ikd5ojGtcUFNoQC2VbSq9A", v: "weekly"});</script>
+  <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
 </body>
 
 </html>

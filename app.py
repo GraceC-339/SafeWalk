@@ -1,6 +1,7 @@
 from flask import Flask, render_template,request,jsonify
 import requests
 import pandas as pd
+import googlemaps
 from haversine import haversine
 
 app = Flask(__name__)
@@ -29,59 +30,43 @@ def data():
 
 # Safe route recommendation
 
-@app.route('/route', methods=['GET'])
-def route():
-    start = request.args.get('start')
-    end = request.args.get('end')
-    crime_to_avoid = request.args.get('crimeToAvoid')
+@app.route('/calculate_route', methods=['POST'])
+def calculate_route():
+    data = request.json
+    start = data['start']
+    end = data['end']
+    crime_to_avoid = data['crimeToAvoid']
 
     #Debugging: Print input parameters
     print(f"start:{start}, End: {end}, Crime to avoid: {crime_to_avoid}")
 
-    # fetch routes from Google Maps Directions API
-    directions_url = f'https://maps.googleapis.com/maps/api/directions/json?destination={end}&origin={start}&mode=walking&key={GOOGLE_MAPS_API_KEY}'
-    directions_response = requests.get(directions_url).json()
-    routes = directions_response['routes']
+    directions= gmaps.directions(start, end, mode='walking', alternatives=True)
 
     safest_route = None
-    lowest_crime_score = float('inf')
+    lowest_risk = float('inf')
 
-    # Define crime scores for each crime type
-    # to be updated - take the values from user input
-    crime_scores = {
-        'Theft from the person': 1,
-        'Anti-social behaviour': 2,
-        'Violence and sexual offences': 3,
-        'Robbery': 4
-    }
-    crime_scores_to_avoid = crime_scores.get(crime_to_avoid, 0)
+    for route in directions:
+        risk_score = calculate_risk_score(route, crime_to_avoid, CRIMES)
+        if risk_score < lowest_risk:
+            lowest_risk = risk_score
+            safest_route = route
+    return jsonify({'route': safest_route})
 
-
-    for route in routes:
-        crime_count = 0
-        for leg in route['legs']:
-            for step in leg['steps']:
-                step_lat = step['end_location']['lat']
-                step_lng = step['end_location']['lng']
-
-                # caculate crime score within proximity for each route step
-                for crime in CRIMES:
+def calculate_risk_score(route, crime_to_avoid, CRIMES):
+    risk_score = 0
+    for leg in route['legs']:
+        for step in leg['steps']:
+            lat = step['start_location']['lat']
+            lng = step['start_location']['lng']
+            for crime in CRIMES:
+                if crime_to_avoid == 'All' or crime['CrimeType'] == crime_to_avoid:
                     crime_lat = crime['latitude']
                     crime_lng = crime['longitude']
-                    distance = haversine(step_lat, step_lng, crime_lat, crime_lng)
-                    if distance < 0.5:
-                        crime_count += crime_scores.get(crime['Crime type'], 0)
-        
-        #Keep track of the route with the lowest crime score
-        if crime_count < lowest_crime_score:
-            lowest_crime_score = crime_count
-            safest_route = route
+                    distance = gmaps.distance_matrix((lat, lng), (crime_lat, crime_lng))['rows'][0]['elements'][0]['distance']['value']
+                    if distance < 50:  # 500 meters radius
+                        risk_score += 1
+    return risk_score
     
-    if safest_route is None:
-        return jsonify({'error': 'No routes found'}),404
-
-    return jsonify({'directions': safest_route, 'crime_score': lowest_crime_score})
-
 
 if __name__ == "__main__":
     app.run(debug=True) 
