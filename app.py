@@ -6,7 +6,7 @@ from haversine import haversine
 
 app = Flask(__name__)
 
-GOOGLE_MAPS_API_KEY = 'AIzaSyD7jrMztTqS2ikd5ojGtcUFNoQC2VbSq9A'
+GOOGLE_MAPS_API_KEY = 'AIzaSyBvVLjWmCja331H8SuIZ4UlJdZytuYkC6Y'
 
 gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
 
@@ -69,7 +69,7 @@ def calculate_risk_score(route, crime_to_avoid, CRIMES):
                     crime_lat = crime['latitude']
                     crime_lng = crime['longitude']
                     distance = gmaps.distance_matrix((lat, lng), (crime_lat, crime_lng))['rows'][0]['elements'][0]['distance']['value']
-                    if distance < 50:  # 500 meters radius
+                    if distance < 50:  # 50 meters radius
                         risk_score += 1
     return risk_score
 

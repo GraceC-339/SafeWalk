@@ -17,7 +17,7 @@ async function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     zoom: 16,
     center: { lat: 51.524215, lng: -0.039631 }, // Mile End Library
-    mapId: "442e4dadd8edd99",
+    mapId: "906b66ac311aa5a1",
   });
 
   //Fetch the JSON crime data
@@ -38,15 +38,6 @@ async function initMap() {
       map,
       position: { lat: crime.latitude, lng: crime.longitude },
       title: crime.CrimeType,
-    });
-
-    // Add an info window to the marker
-    const infoWindow = new google.maps.InfoWindow({
-      content: `<h3>${crime.CrimeType}</h3><p>${crime.Month}</p>`,
-    });
-
-    marker.addListener("click", () => {
-      infoWindow.open(map, marker);
     });
 
     //Add the marker to the array
