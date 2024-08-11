@@ -17,60 +17,95 @@ def load_crime_data(csv_file):
     return df.to_dict(orient='records')
 
 # Load the crime data once at the start
-CRIMES = load_crime_data('updated_crime_data.csv')
+CRIMES = load_crime_data('crimedata.csv')
 
 @app.route("/")
 def map():
     return render_template("index.html", title="SafeWalk")
 
-# fetch data from csv file and return it as json
-@app.route('/data')
-def data():
-    df = pd.read_csv('updated_crime_data.csv')
-    data = df.to_dict(orient='records')
-    return {'data': data}
+#Filter data based on crime type
+@app.route('/crimedata', methods=['POST'])
+def filter_crime_data():
+    try:
+        data = request.json
+        crime_type = data.get('crime_type')
 
-# Safe route recommendation
+        #Validation
+        if not crime_type:
+            return jsonify({"error":"missing crime_type field"}),400
+        
+        df=pd.read_csv('./crimedata.csv')
+        if crime_type != 'All':
+            filtered_df = df[df['CrimeType']==crime_type]
+        else:
+            filtered_df = df
+        result = filtered_df.to_json(orient="records")
+        return jsonify(result)
+    
+    except Exception as e:
+        return jsonify({"error":str(e)}),500
 
+# Safe route calculation
 @app.route('/calculate-route', methods=['POST'])
 def calculate_route():
-    data = request.json
-    start = data['start']
-    end = data['end']
-    crime_to_avoid = data['crimeToAvoid']
+    try:
+        data = request.json
+        start = data['start']
+        end = data['end']
+        crime_to_avoid = data['crimeToAvoid']
 
-    #Debugging: Print input parameters
-    print(f"start:{start}, End: {end}, Crime to avoid: {crime_to_avoid}")
+        #Validation
+        if not start or not end or not crime_to_avoid:
+            return jsonify({'error': 'Missing input parameters'})
 
-    directions= gmaps.directions(start, end, mode='walking', alternatives=True)
+        #Debugging: Print input parameters
+        print(f"start:{start}, End: {end}, Crime to avoid: {crime_to_avoid}")
 
-    #Debugging: Print the directions
-    # print(directions) - it's working
+        directions= gmaps.directions(start, end, mode='walking', alternatives=True)
 
-    safest_route = None
-    lowest_risk = float('inf')
+        #Directions is a list of routes
+        #Each route has legs (A list of dictionaries, where each dictionary represents a leg of the journey.
+        #which has steps (represents a segment of the journey.)
+        #Each step has start_location and end_location (latitude and longitude)
+        #We will calculate the risk score based on the distance between the start_location of each step and the crime location in calculate_risk_score function
 
-    for route in directions:
-        risk_score = calculate_risk_score(route, crime_to_avoid, CRIMES)
-        if risk_score < lowest_risk:
-            lowest_risk = risk_score
-            safest_route = route
-    return jsonify({'route': safest_route})
+        #Debugging: Print the directions
+        # print(directions) - it's working
+
+        safest_route = None
+        lowest_risk = float('inf')
+
+        for route in directions:
+            risk_score = calculate_risk_score(route, crime_to_avoid)
+            if risk_score < lowest_risk:
+                lowest_risk = risk_score
+                safest_route = route
+        
+        print(f"Safest Route: {safest_route}, Lowest Risk: {lowest_risk}")
+        return jsonify({'route': safest_route, 'risk': lowest_risk})
+    
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': str(e)})
 
 
-def calculate_risk_score(route, crime_to_avoid, CRIMES):
+def calculate_risk_score(route, crime_to_avoid):
+    """ Calculate the risk score for a given route based on the crime data
+      """
     risk_score = 0
     for leg in route['legs']:
         for step in leg['steps']:
-            lat = step['start_location']['lat']
-            lng = step['start_location']['lng']
-            for crime in CRIMES:
-                if crime['CrimeType'] == crime_to_avoid:
-                    crime_lat = crime['latitude']
-                    crime_lng = crime['longitude']
-                    distance = gmaps.distance_matrix((lat, lng), (crime_lat, crime_lng))['rows'][0]['elements'][0]['distance']['value']
-                    if distance < 50:  # 50 meters radius
-                        risk_score += 1
+            lat_start = step['start_location']['lat']
+            lng_start = step['start_location']['lng']
+
+            for crime in [crime for crime in CRIMES if crime['CrimeType'] == crime_to_avoid]:
+                crime_lat = crime['latitude']
+                crime_lng = crime['longitude']
+                distance = haversine((lat_start, lng_start), (crime_lat, crime_lng))
+                ## haversine formula in python - distance in km
+                if distance < 0.05:
+                    risk_score += 1
+    print(f"The Risk of coming across {crime_to_avoid} for the routes: {risk_score}")
     return risk_score
 
 

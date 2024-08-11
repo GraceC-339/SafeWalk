@@ -9,9 +9,8 @@ async function initMap() {
   const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary(
     "marker"
   );
-
   // Get the user input for specific crime type
-  const specificCrimeType = document.getElementById("CrimeType").value;
+  const CrimeType = document.getElementById("CrimeType").value;
 
   // Initialise the map
   map = new google.maps.Map(document.getElementById("map"), {
@@ -20,33 +19,56 @@ async function initMap() {
     mapId: "906b66ac311aa5a1",
   });
 
-  //Fetch the JSON crime data
-  const response = await fetch("/data");
-  const jsonData = await response.json();
+  //Fetch the JSON crime data according to the user's input - crimeType
+
+  const res = await fetch("/crimedata", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ crime_type: CrimeType }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+
+  const jsonData = await res.json();
+  // console.log(jsonData);
 
   // Create an array to hold the markers
   const markers = [];
 
-  // Add markers to the map
-  jsonData.data.forEach((crime) => {
-    // If the user has selected a specific crime type, only add markers for that crime type
-    if (specificCrimeType !== "All" && crime.CrimeType !== specificCrimeType) {
-      return;
-    }
-
+  // Add markers to the map for each crime
+  for (let i = 0; i < jsonData.length; i++) {
+    const crime = jsonData[i];
     const marker = new google.maps.marker.AdvancedMarkerElement({
-      map,
       position: { lat: crime.latitude, lng: crime.longitude },
+      map: map,
       title: crime.CrimeType,
     });
 
-    //Add the marker to the array
     markers.push(marker);
-  });
+  }
 
   // Initialise the markerClusterer
   new markerClusterer.MarkerClusterer({ map, markers });
 }
+
+// jsonData.forEach((crime) => {
+//   const marker = new google.maps.marker.AdvancedMarkerElement({
+//     map,
+//     position: { lat: crime.latitude, lng: crime.longitude },
+//     title: crime.CrimeType,
+//   });
+
+//   //Add the marker to the array
+//   markers.push(marker);
+// });
+
+// Initialise the markerClusterer
+//   new markerClusterer.MarkerClusterer({ map, markers });
+// }
 
 // Function to handle user input and generate the route
 async function calculateSafeRoute() {
