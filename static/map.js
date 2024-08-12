@@ -1,14 +1,27 @@
 document.addEventListener("DOMContentLoaded", initMap);
 
 let map;
+let polyline;
+let startMarker;
+let endMarker;
 
-// Function to initialise the map
+/////////// Function to initialise the interactive crime map////////////////////
 async function initMap() {
   //load the libraries
   const { Map, InfoWindow } = await google.maps.importLibrary("maps");
   const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary(
     "marker"
   );
+  const { Autocomplete } = await google.maps.importLibrary("places");
+
+  // Initialise the autocomplete for the start and end locations
+  const autocompleteStart = new google.maps.places.Autocomplete(
+    document.getElementById("start")
+  );
+  const autocompleteEnd = new google.maps.places.Autocomplete(
+    document.getElementById("end")
+  );
+
   // Get the user input for specific crime type
   const CrimeType = document.getElementById("CrimeType").value;
 
@@ -20,7 +33,6 @@ async function initMap() {
   });
 
   //Fetch the JSON crime data according to the user's input - crimeType
-
   const res = await fetch("/crimedata", {
     method: "POST",
     headers: {
@@ -28,19 +40,16 @@ async function initMap() {
     },
     body: JSON.stringify({ crime_type: CrimeType }),
   });
-
   if (!res.ok) {
     throw new Error(`HTTP error! status: ${res.status}`);
   }
-
   const jsonData = await res.json();
 
   // Create an array to hold the markers
   const markers = [];
 
+  //Check if crime jsonData is an array and convert it to an array if it is an object
   let crimesArray = [];
-
-  //Check if jsonData is an array
   if (typeof jsonData === "object" && !Array.isArray(jsonData)) {
     crimesArray = Object.values(jsonData);
   } else if (Array.isArray(jsonData)) {
@@ -57,33 +66,25 @@ async function initMap() {
       title: crime.CrimeType,
     });
 
-    //Add the marker to the array
-    markers.push(marker);
+  //Add the marker to the array
+  markers.push(marker);
   });
+
   //Initialise the markerClusterer
   new markerClusterer.MarkerClusterer({ map, markers });
 }
 
-// Function to handle user input and generate the route
+//////////////////////////////////////////////////////////////////////////////////////////////
+///////////// Function to handle user input and generate the safest route/////////////////////
 async function calculateSafeRoute() {
-  console.log("Calculating safe route");
-
-  // Load the places libraries for autocomplete
-  const { Autocomplete } = await google.maps.importLibrary("places");
-
-  // Initialise the autocomplete
-  const autocompleteStart = new google.maps.places.Autocomplete(
-    document.getElementById("start")
-  );
-  const autocompleteEnd = new google.maps.places.Autocomplete(
-    document.getElementById("end")
-  );
+  console.log("Start calculating safe route");
 
   // Get the user input from an input field or any other source
   const start = document.getElementById("start").value;
   const end = document.getElementById("end").value;
   const crimeToAvoid = document.getElementById("crimeToAvoid").value;
 
+  // Validation - Check if the user has entered a start and end location
   if (!start || !end) {
     alert("Please enter a start and end location");
     return;
@@ -97,9 +98,10 @@ async function calculateSafeRoute() {
     },
     body: JSON.stringify({ start, end, crimeToAvoid }),
   });
-  console.log("Calculating safe route, fetch the route");
+  console.log("Calculating safe route- fetched the route data");
 
   const routeData = await routeResponse.json();
+
   // Check if the route is valid
   if (routeData.error) {
     alert(routeData.error);
@@ -108,61 +110,110 @@ async function calculateSafeRoute() {
 
   //Debugging: Print the route data
   console.log(routeData);
-  // routeData contains the route and the risk score
+  // routeData contains the directions(route) and the risk score (risk)
+
   // get the route directions from the routeData
   directions = routeData.route;
 
+  // Debugging - check the type of the directions
   console.log("Directions: ", directions);
   console.log("Directions type: ", typeof directions);
   console.log("Directions.legs type: ", typeof directions.legs);
 
-  // let directionsArray = [];
-  // // Ensure the routes property is an array
-  // if (typeof directions === "object" && !Array.isArray(directions)) {
-  //   directionsArray = Object.values(directions);
-  // } else if (Array.isArray(directions)) {
-  //   directionsArray = directions;
-  // } else {
-  //   console.error("Expected an array or object, got something else");
-  //   throw new Error("Expected an array or object, got something else");
-  // }
-
-  // console.log("directionsArray: ", directionsArray);
-  // console.log("directionsArray type: ", typeof directionsArray);
-
-  // Display the route using polylines
-  function displayRoutesWithPolylines(route) {
-    if (!route || !route.legs) {
-      console.error("Invalid route data");
-      return;
-    }
-    const polylinecoords = [];
-
-    for (leg of route.legs) {
-      for (step of leg.steps) {
-        lat = step.end_location.lat;
-        lng = step.end_location.lng;
-        polylinecoords.push({ lat, lng });
-      }
-    }
-    console.log("Polyline Coords: ", polylinecoords);
-
-    const polyline = new google.maps.Polyline({
-      path: polylinecoords,
-      geodesic: true,
-      strokeColor: "#0000FF",
-      strokeOpacity: 0.5,
-      strokeWeight: 5,
-    });
-    polyline.setMap(map);
-  }
+  //Clear the previous route and markers
+  clearRoute();
+  clearMarkers(startMarker, endMarker);
   // Display the route on the map
   displayRoutesWithPolylines(directions);
+
+  // Display the risk score
+  alert(`The risk score of "${crimeToAvoid}" for the route is: ${routeData.risk}`);
 }
 
-// Tring to display the route but always got the error: "not an array"
+  // Display the route using polylines
+function displayRoutesWithPolylines(route) {
+  console.log("Displaying route with polylines-running");
 
-// // Render the directions on the map
-// const directionsRenderer = new google.maps.DirectionsRenderer();
-// directionsRenderer.setMap(map);
-// directionsRenderer.setDirections(directionsArray);
+  if (!route || !route.legs) {
+    console.error("Invalid route data");
+    return;
+  }
+
+  const polylinecoords = [];
+
+  for (leg of route.legs) {
+    for (step of leg.steps) {
+      lat = step.end_location.lat;
+      lng = step.end_location.lng;
+      polylinecoords.push({ lat, lng });
+    }
+  }
+  
+  // Debugging - check the polyline coordinates
+  console.log("Polyline Coords: ", polylinecoords);
+
+  polyline = new google.maps.Polyline({
+    path: polylinecoords,
+    geodesic: true,
+    strokeColor: "#26BD50",
+    strokeOpacity: 2,
+    strokeWeight: 8,
+  });
+
+  //Set the map center to the start location
+  map.setCenter({ lat: polylinecoords[0].lat, lng: polylinecoords[0].lng });
+
+  //Set the map bounds to include the entire route
+  const bounds = new google.maps.LatLngBounds();
+  polylinecoords.forEach((coord) => bounds.extend(coord));
+  map.fitBounds(bounds);
+
+  // Add markers for the start and end locations
+  startMarker = new google.maps.Marker({
+    position: polylinecoords[0],
+    map: map,
+    title: "Start",
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      fillColor: "#26BD50",
+      fillOpacity: 1,
+      strokeColor: "#ffffff",
+      strokeOpacity: 1,
+      strokeWeight: 2,
+      scale: 10,
+    },
+  });
+
+  endMarker = new google.maps.Marker({
+    position: polylinecoords[polylinecoords.length - 1],
+    map: map,
+    title: "End",
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      fillColor: "#26BD50",
+      fillOpacity: 1,
+      strokeColor: "#ffffff",
+      strokeOpacity: 1,
+      strokeWeight: 2,
+      scale: 10,
+    },
+  });
+
+  polyline.setMap(map);
+  }
+// Clear the previous route
+function clearRoute() {
+  if (polyline) {
+    polyline.setMap(null);
+  }
+}
+
+//Clear the previous start and end markers
+function clearMarkers(startMarker, endMarker) {
+  if (startMarker) {
+    startMarker.setMap(null);
+  }
+  if (endMarker) {
+    endMarker.setMap(null);
+  }
+}

@@ -1,5 +1,4 @@
 from flask import Flask, render_template,request,jsonify
-import requests
 import pandas as pd
 import googlemaps
 from haversine import haversine
@@ -103,6 +102,7 @@ def calculate_risk_score(route, crime_to_avoid):
                 crime_lng = crime['longitude']
                 distance = haversine((lat_start, lng_start), (crime_lat, crime_lng))
                 ## haversine formula in python - distance in km
+                ## We consider the risk score as 1 if the distance is less than 50 meters
                 if distance < 0.05:
                     risk_score += 1
     print(f"The Risk of coming across {crime_to_avoid} for the routes: {risk_score}")
