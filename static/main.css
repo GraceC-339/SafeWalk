@@ -67,3 +67,6 @@ button {
     width: 80vw; /* The width is the width of the web page */
 }
 
+#crimeToAvoid, #CrimeType{
+    margin-bottom: 2vh;
+}

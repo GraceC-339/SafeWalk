@@ -34,12 +34,12 @@ def filter_crime_data():
         if not crime_type:
             return jsonify({"error":"missing crime_type field"}),400
         
-        df=pd.read_csv('./crimedata.csv')
+        df=pd.read_csv('crimedata.csv')
         if crime_type != 'All':
             filtered_df = df[df['CrimeType']==crime_type]
         else:
             filtered_df = df
-        result = filtered_df.to_json(orient="records")
+        result = filtered_df.to_dict(orient="records")
         return jsonify(result)
     
     except Exception as e:
@@ -81,7 +81,7 @@ def calculate_route():
                 lowest_risk = risk_score
                 safest_route = route
         
-        print(f"Safest Route: {safest_route}, Lowest Risk: {lowest_risk}")
+        # print(f"Safest Route: {safest_route}, Lowest Risk: {lowest_risk}")
         return jsonify({'route': safest_route, 'risk': lowest_risk})
     
     except Exception as e:
