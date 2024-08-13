@@ -26,7 +26,8 @@
 
             <!-- Interactive Crime Map with the crimetype options -->
             <div class="mb-3" id="CrimeMap" >
-            <h2>Explore the Crime Map - Choose Crime Type:</h2>
+            <h2>Explore the Crime Map</h2>
+            <label for="CrimeType" class="form-label">Choose Crime Type:</label>
             <select class="form-select" id="CrimeType" name="CrimeType">
                 <option value="All">All</option>
                 <option value="Anti-social behaviour">Anti-social behaviour</option>
@@ -55,7 +56,7 @@
 
             <!-- Dropdown to select which crime to avoid-->
             <label for="crimeToAvoid">Choose Crime Type to Avoid:</label>
-            <select id="crimeToAvoid" >
+            <select class="form-select" id="crimeToAvoid" name="crimeToAvoid" >
                 <option value="Anti-social behaviour">Anti-social behaviour</option>
                 <option value="Possession of weapons">Possession of weapons</option>
                 <option value="Public order">Public order</option>
