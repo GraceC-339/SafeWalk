@@ -39,7 +39,7 @@
                 <option value="Violence and sexual offences">Violence and sexual offences</option>
                 <option value="Drugs">Drugs</option>
             </select>
-            <button type="button" class="btn btn-light" onclick="initMap()">Update Map</button>
+            <!-- <button type="button" class="btn btn-light" onclick="initMap()">Update Map</button> -->
             </div>
 
             <!-- Route recommendation -->
@@ -54,7 +54,7 @@
             <input type="text" id="end" class="form-control" name="end" placeholder="Enter your end location">
             </div>
 
-            <!-- Dropdown to select which crime to avoid-->
+            <!-- Dropdown to select which crime to avoid
             <label for="crimeToAvoid">Choose Crime Type to Avoid:</label>
             <select class="form-select" id="crimeToAvoid" name="crimeToAvoid" >
                 <option value="Anti-social behaviour">Anti-social behaviour</option>
@@ -65,10 +65,10 @@
                 <option value="Vehicle crime">Vehicle crime</option>
                 <option value="Violence and sexual offences">Violence and sexual offences</option>
                 <option value="Drugs">Drugs</option>
-            </select>
+            </select> -->
 
             <!-- Button to calculate the safest route-->
-            <button onclick="calculateSafeRoute()" type="button" class="btn btn-success" id="getRouteButton">Get Route</button>
+            <button onclick="initMap();calculateSafeRoute()" type="button" class="btn btn-success" id="getRouteButton">Get Route</button>
 
     </div>
 

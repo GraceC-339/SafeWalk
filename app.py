@@ -18,16 +18,16 @@ def load_crime_data(csv_file):
 # Load the crime data once at the start
 CRIMES = load_crime_data('crimedata.csv')
 
+#Render the html page
 @app.route("/")
 def map():
     return render_template("index.html", title="SafeWalk")
 
 #Filter data based on crime type
-@app.route('/crimedata', methods=['POST'])
+@app.route('/crimedata', methods=['GET'])
 def filter_crime_data():
     try:
-        data = request.json
-        crime_type = data.get('crime_type')
+        crime_type = request.args.get('crime_type')
 
         #Validation
         if not crime_type:
@@ -45,13 +45,12 @@ def filter_crime_data():
         return jsonify({"error":str(e)}),500
 
 # Safe route calculation
-@app.route('/calculate-route', methods=['POST'])
+@app.route('/calculate-route', methods=['GET'])
 def calculate_route():
     try:
-        data = request.json
-        start = data['start']
-        end = data['end']
-        crime_to_avoid = data['crimeToAvoid']
+        start = request.args.get('start')
+        end = request.args.get('end')
+        crime_to_avoid = request.args.get('crime_to_avoid')
 
         #Validation
         if not start or not end or not crime_to_avoid:
@@ -60,8 +59,8 @@ def calculate_route():
         #Debugging: Print input parameters
         print(f"start:{start}, End: {end}, Crime to avoid: {crime_to_avoid}")
 
+        #Get the directions from Google Maps API
         directions= gmaps.directions(start, end, mode='walking', alternatives=True)
-
         #Directions is a list of routes
         #Each route has legs (A list of dictionaries, where each dictionary represents a leg of the journey.
         #which has steps (represents a segment of the journey.)

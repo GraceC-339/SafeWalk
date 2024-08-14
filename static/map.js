@@ -33,13 +33,16 @@ async function initMap() {
   });
 
   //Fetch the JSON crime data according to the user's input - crimeType
-  const res = await fetch("/crimedata", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ crime_type: CrimeType }),
-  });
+  const res = await fetch(
+    `/crimedata?crime_type=${encodeURIComponent(CrimeType)}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // body: JSON.stringify({ crime_type: CrimeType }),
+    }
+  );
   if (!res.ok) {
     throw new Error(`HTTP error! status: ${res.status}`);
   }
@@ -66,8 +69,8 @@ async function initMap() {
       title: crime.CrimeType,
     });
 
-  //Add the marker to the array
-  markers.push(marker);
+    //Add the marker to the array
+    markers.push(marker);
   });
 
   //Initialise the markerClusterer
@@ -82,7 +85,7 @@ async function calculateSafeRoute() {
   // Get the user input from an input field or any other source
   const start = document.getElementById("start").value;
   const end = document.getElementById("end").value;
-  const crimeToAvoid = document.getElementById("crimeToAvoid").value;
+  const crimeType = document.getElementById("CrimeType").value;
 
   // Validation - Check if the user has entered a start and end location
   if (!start || !end) {
@@ -91,13 +94,20 @@ async function calculateSafeRoute() {
   }
 
   // Fetch the safest route based on the user's input
-  const routeResponse = await fetch("/calculate-route", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ start, end, crimeToAvoid }),
-  });
+  const routeResponse = await fetch(
+    `/calculate-route?start=${encodeURIComponent(
+      start
+    )}&end=${encodeURIComponent(end)}&crime_to_avoid=${encodeURIComponent(
+      crimeType
+    )}}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // body: JSON.stringify({ start, end, crimeToAvoid }),
+    }
+  );
   console.log("Calculating safe route- fetched the route data");
 
   const routeData = await routeResponse.json();
@@ -127,10 +137,10 @@ async function calculateSafeRoute() {
   displayRoutesWithPolylines(directions);
 
   // Display the risk score
-  alert(`The risk score of "${crimeToAvoid}" for the route is: ${routeData.risk}`);
+  alert(`The risk score of "${crimeType}" for the route is: ${routeData.risk}`);
 }
 
-  // Display the route using polylines
+// Display the route using polylines
 function displayRoutesWithPolylines(route) {
   console.log("Displaying route with polylines-running");
 
@@ -148,7 +158,7 @@ function displayRoutesWithPolylines(route) {
       polylinecoords.push({ lat, lng });
     }
   }
-  
+
   // Debugging - check the polyline coordinates
   console.log("Polyline Coords: ", polylinecoords);
 
@@ -200,7 +210,7 @@ function displayRoutesWithPolylines(route) {
   });
 
   polyline.setMap(map);
-  }
+}
 // Clear the previous route
 function clearRoute() {
   if (polyline) {
