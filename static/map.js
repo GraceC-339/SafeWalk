@@ -92,6 +92,11 @@ async function calculateSafeRoute() {
     alert("Please enter a start and end location");
     return;
   }
+  // Validation - Check if the user has entered a crime type, if selected "All", then alert the user
+  if (crimeType === "All") {
+    alert("Please select a crime type for calculating the safest route");
+    return;
+  }
 
   // Fetch the safest route based on the user's input
   const routeResponse = await fetch(
