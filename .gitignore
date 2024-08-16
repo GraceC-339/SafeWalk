@@ -1,16 +1,6 @@
 # Logs
 logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
 
 # Editor directories and files
 .vscode/*
@@ -41,13 +31,3 @@ pip-selfcheck.json
 
 # Environment variables
 .env
-
-# Database
-friends.db
-
-# Compiled Python files
-*.pyc
-
-# Dependency directories
-node_modules/
-/dist/
