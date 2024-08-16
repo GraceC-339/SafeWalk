@@ -28,7 +28,7 @@
             <div class="mb-3" id="CrimeMap" >
             <h2>Explore the Crime Map</h2>
             <label for="CrimeType" class="form-label">Choose Crime Type:</label>
-            <select class="form-select" id="CrimeType" name="CrimeType">
+            <select class="form-select" id="CrimeType" name="CrimeType" onchange="initMap()">
                 <option value="All">All</option>
                 <option value="Anti-social behaviour">Anti-social behaviour</option>
                 <option value="Possession of weapons">Possession of weapons</option>
@@ -68,7 +68,7 @@
             </select> -->
 
             <!-- Button to calculate the safest route-->
-            <button onclick="initMap();calculateSafeRoute()" type="button" class="btn btn-success btn-lg" id="getRouteButton">Get Route</button>
+            <button onclick="calculateSafeRoute()" type="button" class="btn btn-success btn-lg" id="getRouteButton">Get Route</button>
 
     </div>
 

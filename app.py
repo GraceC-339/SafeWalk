@@ -95,16 +95,18 @@ def calculate_risk_score(route, crime_to_avoid):
         for step in leg['steps']:
             lat_start = step['start_location']['lat']
             lng_start = step['start_location']['lng']
+            print(f"Start Location: {lat_start}, {lng_start}")
 
             for crime in [crime for crime in CRIMES if crime['CrimeType'] == crime_to_avoid]:
                 crime_lat = crime['latitude']
                 crime_lng = crime['longitude']
                 distance = haversine((lat_start, lng_start), (crime_lat, crime_lng))
+                # print(f"Crime Location: {crime_lat}, {crime_lng}, Distance: {distance}") - Debugging
                 ## haversine formula in python - distance in km
                 ## We consider the risk score as 1 if the distance is less than 100 meters
                 if distance < 0.1:
                     risk_score += 1
-    print(f"The Risk of coming across {crime_to_avoid} for the routes: {risk_score}")
+    print(f"The Risk of coming across {crime_to_avoid} for the route: {risk_score}")
     return risk_score
 
 

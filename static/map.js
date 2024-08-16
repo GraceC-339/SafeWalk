@@ -99,7 +99,7 @@ async function calculateSafeRoute() {
       start
     )}&end=${encodeURIComponent(end)}&crime_to_avoid=${encodeURIComponent(
       crimeType
-    )}}`,
+    )}`,
     {
       method: "GET",
       headers: {
