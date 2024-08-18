@@ -197,6 +197,12 @@ function displayRoutesWithPolylines(route) {
       strokeWeight: 2,
       scale: 10,
     },
+    label: {
+      text: "S",
+      color: "#ffffff",
+      fontSize: "16px",
+      fontweight: "bold",
+    },
   });
 
   endMarker = new google.maps.Marker({
@@ -211,6 +217,12 @@ function displayRoutesWithPolylines(route) {
       strokeOpacity: 1,
       strokeWeight: 2,
       scale: 10,
+    },
+    label: {
+      text: "E",
+      color: "#ffffff",
+      fontSize: "16px",
+      fontweight: "bold",
     },
   });
 
