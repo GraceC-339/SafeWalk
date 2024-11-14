@@ -15,6 +15,9 @@ Users can filter and display different types of crimes on the map.
 Users input start and end locations.
 According to the crime type they want to avoid, the system generates multiple routes using Google Maps Directions API, calculates the crime risk for each, and recommends the safest route with the risk score.
 
+![Screenshot 2024-08-19 at 21 39 42](https://github.com/user-attachments/assets/46e0e7dd-8a89-43bc-9765-74ec89f441ed)
+Screenshot of the app
+
 ## Prerequisites
 
 - Python 3.9.x
